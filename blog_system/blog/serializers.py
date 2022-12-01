@@ -12,4 +12,4 @@ class CustomUserSignupSerializer(serializers.ModelSerializer):
     #confirm_password = serializers.CharField(style={'input_type':'password'}, write_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id', 'username','password', 'email', 'gender', 'mob_number']
+        fields = ['id','username', 'password', 'email', 'gender', 'mob_number', 'city']

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Blog
-from .serializers import BlogSerializer
+from .serializers import BlogSerializer, CustomUserSignupSerializer
 from rest_framework import status
 
 # Create your views here.
@@ -68,3 +68,11 @@ def blog_detail(request, pk):
     elif request.method == 'DELETE':
         blog.delete()
         return Response({'message':'Blog deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def register_user(request):
+    serializer = CustomUserSignupSerializer(data = request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message":"Signup successfully"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_201_CREATED)
