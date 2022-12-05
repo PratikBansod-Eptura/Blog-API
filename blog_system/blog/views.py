@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .models import Blog
 from .serializers import BlogSerializer, CustomUserSignupSerializer
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 # Create your views here.
 # @api_view()
@@ -78,7 +79,9 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_201_CREATED)
 
 
+
 @api_view()
+@permission_classes((IsAdminUser, ))
 def unapproved_blogs(request):
     try:
         blogs = Blog.objects.filter(approval_status = False)
@@ -89,6 +92,7 @@ def unapproved_blogs(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes((IsAdminUser, ))
 def blog_approve(request):
     blog_id = request.query_params.get("id")
     print(f'blog_id = {blog_id}')
@@ -96,4 +100,4 @@ def blog_approve(request):
     print(f'\n blog = {blog}\n')
     blog.approval_status = True
     blog.save()
-    return Response({'message':'blog approved to publish'}, status=status.HTTP_200_OK)
+    return Response({'message':'blog is successfully approved for publication'}, status=status.HTTP_200_OK)

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('blogs/', views.blog_list, name='blogs'),
@@ -8,4 +9,6 @@ urlpatterns = [
     path('unapproved-blogs/', views.unapproved_blogs, name='unapproved-blog'),
     path('blog-approve/<int:pk>/', views.blog_approve, name='blog-approve'),
     path('blog-approve/', views.blog_approve, name='blog-approve'),
+
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 ]
