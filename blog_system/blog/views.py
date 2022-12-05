@@ -10,6 +10,16 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 @api_view()
 def blog_list(request):
     if request.method == 'GET':
+        print(request.query_params.get('id'))
+        if request.query_params.get('id'):
+            try:
+                blog = Blog.objects.get(pk=request.query_params.get('id'))
+            except Blog.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+            serializer = BlogSerializer(blog)
+            return Response(serializer.data, status.HTTP_200_OK)
+        print(f'\nrequest.user = {request.user}\n')
         blogs = Blog.objects.all()
         serializer = BlogSerializer(blogs, many=True)
         print(f'\nserilizer data = {serializer.data}\n')
@@ -20,7 +30,8 @@ def blog_list(request):
 @permission_classes((IsAuthenticated,))
 def blog_create(request):
     if request.method == 'POST':
-        serializer = BlogSerializer(data = request.data)
+        serializer = BlogSerializer(context = {'request':request}, data = request.data)
+        print(f'\nrequest.user = {request.user}\n')
         if serializer.is_valid():
             serializer.save()
             #response = {'message':'Blog created successfully'}
@@ -28,18 +39,16 @@ def blog_create(request):
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET','PUT','PATCH','DELETE'])
-def blog_detail(request, pk):
+@api_view(['PUT','PATCH','DELETE'])
+def blog_detail(request):
+    blog_id = request.query_params.get('id')
+
     try:
-        blog = Blog.objects.get(pk=pk)
+        blog = Blog.objects.get(pk=blog_id)
     except Blog.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = BlogSerializer(blog)
-        return Response(serializer.data, status.HTTP_201_CREATED)
-
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         serializer = BlogSerializer(blog, data = request.data)
         if serializer.is_valid():
             serializer.save()
