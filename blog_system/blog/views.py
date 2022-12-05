@@ -76,3 +76,24 @@ def register_user(request):
         serializer.save()
         return Response({"message":"Signup successfully"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_201_CREATED)
+
+
+@api_view()
+def unapproved_blogs(request):
+    try:
+        blogs = Blog.objects.filter(approval_status = False)
+    except Blog.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    print(f'blogs = {blogs}')
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def blog_approve(request):
+    blog_id = request.query_params.get("id")
+    print(f'blog_id = {blog_id}')
+    blog = Blog.objects.get(pk=blog_id)
+    print(f'\n blog = {blog}\n')
+    blog.approval_status = True
+    blog.save()
+    return Response({'message':'blog approved to publish'}, status=status.HTTP_200_OK)
