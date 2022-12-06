@@ -18,7 +18,10 @@ def blog_list(request):
         print(request.query_params.get('id'))
         if request.query_params.get('id'):
             try:
-                blog = Blog.objects.get(pk=request.query_params.get('id'), approvaL_status = True)
+                blog = Blog.objects.get(
+                                        pk=request.query_params.get('id'),
+                                        approvaL_status = True
+                                        )
             except Blog.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -38,7 +41,10 @@ def blog_create(request):
     Create blog - Only authenticated user can create blog.
     """
     if request.method == 'POST':
-        serializer = BlogSerializer(context = {'request':request}, data = request.data)
+        serializer = BlogSerializer(
+                                    context = {'request':request},
+                                    data = request.data
+                                    )
         print(f'\nrequest.user = {request.user}\n')
         if serializer.is_valid():
             serializer.save()
@@ -81,8 +87,15 @@ def blog_detail(request):
         elif request.method == 'DELETE':
             print(f'\n UInside DELETE method\n')
             blog.delete()
-            return Response({'message':'Blog deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-    return Response({'message':'Can only update your blog'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                            {'message':'Blog deleted successfully'},
+                            status=status.HTTP_204_NO_CONTENT
+                            )
+    return Response(
+                    {'message':'Can only update your blog'},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+
 
 @api_view(['POST'])
 def register_user(request):
@@ -92,7 +105,10 @@ def register_user(request):
     serializer = CustomUserSignupSerializer(data = request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({"message":"Signup successfully"}, status=status.HTTP_201_CREATED)
+        return Response(
+                        {"message":"Signup successfully"},
+                        status=status.HTTP_201_CREATED
+                        )
     return Response(serializer.errors, status=status.HTTP_201_CREATED)
 
 
@@ -116,6 +132,7 @@ def unapproved_blogs(request):
         response = {'message':'No blog for approval'}
     return Response(response, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @permission_classes((IsAdminUser, ))
 def blog_approve(request):
@@ -130,4 +147,7 @@ def blog_approve(request):
     print(f'\n blog = {blog}\n')
     blog.approval_status = True
     blog.save()
-    return Response({'message':'blog is successfully approved for publication'}, status=status.HTTP_200_OK)
+    return Response(
+                    {'message':'blog is successfully approved for publication'},
+                    status=status.HTTP_200_OK
+                    )
