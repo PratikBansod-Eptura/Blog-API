@@ -99,7 +99,7 @@ def blog_detail(request):
                             status=status.HTTP_204_NO_CONTENT
                             )
     return Response(
-                    {'message':'Can only update your blog'},
+                    {'message':'You can update only your own blog'},
                     status=status.HTTP_400_BAD_REQUEST
                     )
 

@@ -34,6 +34,12 @@ class BlogSerializer(serializers.ModelSerializer):
         blog.save()
         return blog
 
+    def update(self, instance, validated_data):
+        # Simply set each attribute on the instance, and then save it.
+        instance.approval_status = False
+        instance.save()
+        return instance
+
 
 class CustomUserSignupSerializer(serializers.ModelSerializer):
     #confirm_password = serializers.CharField(style={'input_type':'password'}, write_only=True)

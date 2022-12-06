@@ -15,7 +15,7 @@ class Blog(models.Model):
     user = models.ForeignKey(CustomUser, related_name='blog', on_delete=models.CASCADE)
     title = models.CharField(max_length=64)
     description = models.TextField()
-    published_date = models.DateField()
-    last_updated_on = models.DateField()
+    published_date = models.DateField(auto_now_add=True)
+    last_updated_on = models.DateField(auto_now=True)
     approval_status = models.BooleanField(default=False)
 
