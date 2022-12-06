@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Blog, CustomUser
+from rest_framework.validators import ValidationError
 
 
 class BlogSerializer(serializers.ModelSerializer):
@@ -40,6 +41,12 @@ class CustomUserSignupSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id','username', 'password',
                   'email', 'gender', 'mob_number', 'city']
+
+    def validate_mob_number(self, mob_number):
+        if len(str(mob_number)) <= 10:
+            raise ValidationError(
+                        'Please enter country code also. Ex. 919028890852'
+                        )
 
     def create(self, validated_data):
         """
