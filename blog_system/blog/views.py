@@ -4,6 +4,7 @@ from .models import Blog, CustomUser
 from .serializers import BlogSerializer, CustomUserSignupSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
@@ -20,7 +21,7 @@ def blog_list(request):
             try:
                 blog = Blog.objects.get(
                                         pk=request.query_params.get('id'),
-                                        approvaL_status = True
+                                        approval_status = True
                                         )
             except Blog.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -28,7 +29,13 @@ def blog_list(request):
             serializer = BlogSerializer(blog)
             return Response(serializer.data, status.HTTP_200_OK)
         print(f'\nrequest.user = {request.user}\n')
-        blogs = Blog.objects.filter(approval_status = True)
+        blogs_queryset = Blog.objects.filter(approval_status = True)
+
+        # Pagination code
+        paginator = PageNumberPagination()
+        paginator.page_size = 3
+        blogs = paginator.paginate_queryset(blogs_queryset, request)
+
         serializer = BlogSerializer(blogs, many=True)
         print(f'\nserilizer data = {serializer.data}\n')
         return Response(serializer.data, status.HTTP_200_OK)
