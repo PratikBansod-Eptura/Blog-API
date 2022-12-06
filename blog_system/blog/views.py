@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .models import Blog
+from .models import Blog, CustomUser
 from .serializers import BlogSerializer, CustomUserSignupSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -13,14 +13,14 @@ def blog_list(request):
         print(request.query_params.get('id'))
         if request.query_params.get('id'):
             try:
-                blog = Blog.objects.get(pk=request.query_params.get('id'))
+                blog = Blog.objects.get(pk=request.query_params.get('id'), approvaL_status = True)
             except Blog.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
             serializer = BlogSerializer(blog)
             return Response(serializer.data, status.HTTP_200_OK)
         print(f'\nrequest.user = {request.user}\n')
-        blogs = Blog.objects.all()
+        blogs = Blog.objects.filter(approval_status = True)
         serializer = BlogSerializer(blogs, many=True)
         print(f'\nserilizer data = {serializer.data}\n')
         return Response(serializer.data, status.HTTP_200_OK)
@@ -40,6 +40,7 @@ def blog_create(request):
 
 
 @api_view(['PUT','PATCH','DELETE'])
+@permission_classes((IsAuthenticated,))
 def blog_detail(request):
     blog_id = request.query_params.get('id')
 
@@ -48,23 +49,27 @@ def blog_detail(request):
     except Blog.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'PUT':
-        serializer = BlogSerializer(blog, data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    user_obj = CustomUser.objects.get(username = request.user)
+    if blog.user == user_obj or request.user.username == 'admin':
+        if request.method == 'PUT':
+            serializer = BlogSerializer(blog, data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'PATCH':
-        serializer = BlogSerializer(blog, data = request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'PATCH':
+            serializer = BlogSerializer(blog, data = request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        blog.delete()
-        return Response({'message':'Blog deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        elif request.method == 'DELETE':
+            print(f'\n UInside DELETE method\n')
+            blog.delete()
+            return Response({'message':'Blog deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    return Response({'message':'Can only update your blog'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def register_user(request):
