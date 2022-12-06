@@ -9,6 +9,11 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 # Create your views here.
 @api_view()
 def blog_list(request):
+    """
+    Returns approved blogs..
+
+    Authentication not required.
+    """
     if request.method == 'GET':
         print(request.query_params.get('id'))
         if request.query_params.get('id'):
@@ -29,6 +34,9 @@ def blog_list(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def blog_create(request):
+    """
+    Create blog - Only authenticated user can create blog.
+    """
     if request.method == 'POST':
         serializer = BlogSerializer(context = {'request':request}, data = request.data)
         print(f'\nrequest.user = {request.user}\n')
@@ -42,6 +50,9 @@ def blog_create(request):
 @api_view(['PUT','PATCH','DELETE'])
 @permission_classes((IsAuthenticated,))
 def blog_detail(request):
+    """
+    Blog can be fully or partially updated by admin or respective user.
+    """
     blog_id = request.query_params.get('id')
 
     try:
@@ -50,6 +61,8 @@ def blog_detail(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user_obj = CustomUser.objects.get(username = request.user)
+
+    # Either admin or respective user of blog can update and delete the Blog
     if blog.user == user_obj or request.user.username == 'admin':
         if request.method == 'PUT':
             serializer = BlogSerializer(blog, data = request.data)
@@ -73,6 +86,9 @@ def blog_detail(request):
 
 @api_view(['POST'])
 def register_user(request):
+    """
+    Create user profile.
+    """
     serializer = CustomUserSignupSerializer(data = request.data)
     if serializer.is_valid():
         serializer.save()
@@ -80,10 +96,14 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_201_CREATED)
 
 
-
 @api_view()
 @permission_classes((IsAdminUser, ))
 def unapproved_blogs(request):
+    """
+    Returns only unapproved blogs.
+
+    Only admin can access this view.
+    """
     try:
         blogs = Blog.objects.filter(approval_status = False)
     except Blog.DoesNotExist:
@@ -99,6 +119,11 @@ def unapproved_blogs(request):
 @api_view(['GET'])
 @permission_classes((IsAdminUser, ))
 def blog_approve(request):
+    """"
+    Approve unapproved blog for publication.
+
+    Only admin have access og this view.
+    """
     blog_id = request.query_params.get("id")
     print(f'blog_id = {blog_id}')
     blog = Blog.objects.get(pk=blog_id)
