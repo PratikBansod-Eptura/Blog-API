@@ -35,6 +35,9 @@ class BlogSerializer(serializers.ModelSerializer):
         return blog
 
     def update(self, instance, validated_data):
+        """
+        Update approval_status field to True and returns instance
+        """
         # Simply set each attribute on the instance, and then save it.
         instance.approval_status = False
         instance.save()
