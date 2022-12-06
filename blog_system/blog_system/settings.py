@@ -40,14 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-
     # rest framework
     'rest_framework',
     'rest_framework.authtoken',
 
-    
     # internal app
     'blog',
+
+    # For logging request
+    'drf_api_logger'
 
 ]
 
@@ -59,6 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # logger middleware
+    'drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware'
 ]
 
 ROOT_URLCONF = 'blog_system.urls'
@@ -150,3 +153,6 @@ REST_FRAMEWORK = {
     #'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     #'PAGE_SIZE': 2,
 }
+
+# Store logs in database
+DRF_API_LOGGER_DATABASE = True
