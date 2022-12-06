@@ -14,6 +14,9 @@ class BlogSerializer(serializers.ModelSerializer):
         #return super(BlogSerializer, self).to_representation(instance)
 
     def create(self, validated_data):
+        """
+        Return blog with assigning current authenticated user object to user field.
+        """
         username = self.context.get('request').user
         user_obj = CustomUser.objects.get(username=username)
 
@@ -35,6 +38,9 @@ class CustomUserSignupSerializer(serializers.ModelSerializer):
         fields = ['id','username', 'password', 'email', 'gender', 'mob_number', 'city']
 
     def create(self, validated_data):
+        """
+        Text formated password converted in hash format and returns user.
+        """
         username = validated_data['username']
         password = validated_data['password']
         email = validated_data['email']
